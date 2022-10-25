@@ -50,7 +50,9 @@ public class LogAspect {
     public void doBefore(JoinPoint joinPoint) {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         HttpServletRequest request = attributes.getRequest();
-        LOGGER.info("url={},method={},ip={},class_method={},args={}", request.getRequestURI(),request.getMethod(),request.getRemoteAddr(),joinPoint.getSignature().getDeclaringTypeName() + "." + joinPoint.getSignature().getName(),joinPoint.getArgs());
+        LOGGER.info("url={},method={},ip={},class_method={},args={}", request.getRequestURI(),request.getMethod()
+                ,request.getRemoteAddr(),joinPoint.getSignature().getDeclaringTypeName()
+                        + "." + joinPoint.getSignature().getName(),joinPoint.getArgs());
     }
 
 
