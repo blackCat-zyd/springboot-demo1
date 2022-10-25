@@ -16,8 +16,8 @@ public class EmployeeServiceImpl implements EmployeeService {
     private EmployeeDao employeeDao;
 
     @Override
-    public void addEmployee(Employee employee) {
-        employeeDao.addEmployee(employee);
+    public int addEmployee(Employee employee) {
+        return employeeDao.addEmployee(employee);
     }
 
     @Override
@@ -25,5 +25,20 @@ public class EmployeeServiceImpl implements EmployeeService {
         List<Employee> list = employeeDao.getEmployeeList();
         CommonUtil.removeDuplicate(list);
         return list;
+    }
+
+    @Override
+    public int update(Employee employee) {
+        return employeeDao.update(employee);
+    }
+
+    @Override
+    public Employee queryById(Long id) {
+        return employeeDao.queryById(id);
+    }
+
+    @Override
+    public int deleteById(Long id) {
+        return employeeDao.deleteById(id);
     }
 }

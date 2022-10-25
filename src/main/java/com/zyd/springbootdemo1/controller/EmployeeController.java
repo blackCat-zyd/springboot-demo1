@@ -9,24 +9,64 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/employee")
 public class EmployeeController {
 
     @Autowired
     private EmployeeService employeeService;
 
-    //增
-    @PostMapping
-    public Employee add(Employee user) {
-        employeeService.addEmployee(user);
-        return user;
-    }
-
     // 列表
     @GetMapping
-    public List<Employee> list() {
-        return employeeService.getEmployeeList();
+    public ResponseResult<List<Employee>> list() {
+
+        return ResponseResult.success(employeeService.getEmployeeList());
+    }
+
+
+    //增
+    @PostMapping
+    public ResponseResult add(Employee employee) {
+        if (employee == null) {
+            return ResponseResult.fail( "参数错误");
+        }
+        int rt = employeeService.addEmployee(employee);
+        if (rt != 0) {
+            return ResponseResult.fail("添加失败");
+        }
+        return ResponseResult.success(employee);
+    }
+
+    //删
+    @DeleteMapping("{employeeId}")
+    public ResponseResult delete(@PathVariable("employeeId") Long employeeId) {
+        //若id为空或者小于1返回400
+        if (employeeId == null || employeeId < 1) {
+            return ResponseResult.fail("参数错误");
+        }
+        Integer count = employeeService.deleteById(employeeId);
+        if (count == null || count != 0) {
+            //插入失败，返回404
+            return ResponseResult.fail("删除失败");
+        }//删除成功，返回204
+        return ResponseResult.success();
+    }
+
+    //改
+    @PutMapping
+    public ResponseResult update(Employee employee) {
+        //若User对象为空则返回400
+        if (employee == null) {
+            return ResponseResult.fail("参数错误");
+        }
+        long id = employee.getEmployeeId();
+        Integer count = employeeService.update(employee);
+        if (count == null || count != 0) {
+            //插入失败，返回400
+            return ResponseResult.fail("修改失败");
+        }
+        //创建对象成功，返回204
+        return  ResponseResult.success(employeeService.queryById(id));
     }
 
     //@RequestMapping(value = "{id}", method = RequestMethod.GET)//   /employee/{employeeId}
@@ -38,41 +78,11 @@ public class EmployeeController {
         if (employeeId == null || employeeId < 1) {
             return ResponseResult.fail(null, "参数错误");
         }
-        Employee user = userService.queryById(id);
+        Employee employee = employeeService.queryById(employeeId);
         //若ID为空则返回404
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if (employee == null) {
+            return ResponseResult.fail(null, "没找到");
         }
-        return ResponseEntity.ok(user);
-    }
-
-    //删
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> delete(@PathVariable("id") Long id) {
-        //若id为空或者小于1返回400
-        if (id == null || id < 1) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        Integer count = userService.deleteById(id);
-        if (count == null || count == 0) {
-            //插入失败，返回404
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }//删除成功，返回204
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-    }
-
-    //改
-    @PutMapping
-    public ResponseEntity<Void> update(User user) {
-        //若User对象为空则返回400
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
-        Integer count = userService.update(user);
-        if (count == null || count == 0) {
-            //插入失败，返回400
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }//创建对象成功，返回204
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+        return ResponseResult.success(employee);
     }
 }
